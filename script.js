@@ -1,4 +1,4 @@
-const apiKey = "b1aac941a3e45febdacc9bca8c1f87dd";
+const apiKey = "YOUR API KEY";
 const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
 
 const locationInput = document.getElementById("locationInput");
