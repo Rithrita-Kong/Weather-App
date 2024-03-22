@@ -1,4 +1,4 @@
-const apiKey = "YOUR API KEY";
+const apiKey = "b1aac941a3e45febdacc9bca8c1f87dd";
 const apiUrl = "https://api.openweathermap.org/data/2.5/weather";
 
 const locationInput = document.getElementById("locationInput");
@@ -11,10 +11,12 @@ const speedElement = document.getElementById("speed");
 const humidityElement = document.getElementById("humidity");
 const feelingElement = document.getElementById("feeling");
 
-searchButton.addEventListener("click", () => {
+const errorContainerElement = document.getElementById("error");
+
+searchButton.addEventListener("click", async () => {
   const location = locationInput.value;
   if (location) {
-    fetchWeather(location);
+    await fetchWeather(location);
   }
 });
 
@@ -24,23 +26,30 @@ function capitalizeWords(text) {
   });
 }
 
-function fetchWeather(location) {
+async function fetchWeather(location) {
   const url = `${apiUrl}?q=${location}&appid=${apiKey}&units=metric`;
 
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      locationElement.textContent = data.name;
-      temperatureElement.textContent = `${Math.round(data.main.temp)}°C`;
-      descriptionElement.textContent = capitalizeWords(
-        data.weather[0].description
-      );
-      speedElement.textContent = `${data.wind.speed} mph`;
-      humidityElement.textContent = data.main.humidity;
-      feelingElement.textContent = `${Math.round(data.main.feels_like)}°C`;
-      hiddenElement.style.display = "block";
-    })
-    .catch((error) => {
-      console.error("Error fetching weather data:", error);
+  try {
+    let data = await fetch(url).then((res) => {
+      return res.json();
     });
+    if (data.cod === "404") {
+      throw new Error("City Not Found");
+    }
+
+    locationElement.textContent = data.name;
+    temperatureElement.textContent = `${Math.round(data.main.temp)}°C`;
+    descriptionElement.textContent = capitalizeWords(
+      data.weather[0].description
+    );
+    speedElement.textContent = `${data.wind.speed} mph`;
+    humidityElement.textContent = data.main.humidity;
+    feelingElement.textContent = `${Math.round(data.main.feels_like)}°C`;
+    hiddenElement.style.display = "block";
+    errorContainerElement.style.display = "none";
+  } catch (error) {
+    console.error("Error fetching weather data:", error);
+    errorContainerElement.style.display = "block";
+    hiddenElement.style.display = "none";
+  }
 }
